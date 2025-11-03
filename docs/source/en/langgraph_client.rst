@@ -1,42 +1,8 @@
-LanggraphClient 指南
+LanggraphClient Guide
 =====================
 
-LanggraphClient 让你以图描述语言（GDL）或可视化编辑器定义 Maze 工作流。本指南提供从环境准备到部署运行的完整流程，并对照 MaClient 的概念帮助你快速迁移。
+Placeholder documentation for the Langgraph client.
 
-快速开始
---------
-
-#. 安装并配置 LanggraphClient SDK。
-#. 连接到 Maze Runtime 并验证凭据。
-#. 创建你的第一个图：定义节点、边以及触发条件。
-#. 将图编译为可部署单元，上传至 Maze。
-
-在上述步骤中，你可以对照 :doc:`quick_start` 中的 MaClient 示例理解两者差异。
-
-图结构建模
-----------
-
-- **节点类型**：说明推理节点、工具节点、控制节点等支持的能力。
-- **数据流**：阐述输入输出信号如何在图中传播，以及如何注入上下文变量。
-- **控制结构**：展示条件分支、循环与并行执行的图形化表达。
-
-添加自定义组件
---------------
-
-介绍如何注册自定义的 LangGraph 模板，或将现有 Python 函数封装为可复用节点：
-
-- 通过装饰器暴露函数能力
-- 指定依赖与资源需求
-- 在图编辑器中引入并配置参数
-
-部署与运行
-----------
-
-#. 将图导出为 YAML/JSON。
-#. 使用 `langgraph-client deploy` 发布至目标环境。
-#. 在 Maze 控制台监控执行状态和日志。
-
-常见问题
---------
-
-列出开发与部署期间的常见错误排查方法，例如凭据失效、图语法校验失败或节点版本不兼容等。准备好这些条目后，可将其链接到 FAQ 页面或知识库。 
+- Describe how to model Maze workflows with graph-based tooling.
+- Compare the Langgraph approach to the MaClient SDK.
+- Add deployment and troubleshooting sections when real content is available.
