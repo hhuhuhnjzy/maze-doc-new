@@ -1,6 +1,6 @@
 .. _installation:
 
-Installation Guide
+Installation
 ==================
 
 This is a placeholder installation guide.

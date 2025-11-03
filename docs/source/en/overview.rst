@@ -1,6 +1,6 @@
 .. _overview:
 
-Project Overview
+Overview
 ================
 
 Placeholder content for the overview page.

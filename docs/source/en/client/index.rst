@@ -1,10 +1,16 @@
 Client Guides
 =============
 
-Placeholder landing page for client documentation. Use this page to introduce the available client options before diving into specific guides.
+Maze provides multiple client options to build and orchestrate AI workflows. Choose the client that best fits your use case.
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    maclient
    langgraph_client
+
+Available Clients
+-----------------
+
+* **MaClient**: A flexible client for constructing custom AI workflows
+* **LanggraphClient**: A client for modeling workflows using Langgraph framework
