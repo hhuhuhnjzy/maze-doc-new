@@ -1,5 +1,5 @@
-MazeClient Web API Reference
-============================
+MaClient API Reference
+======================
 
 Placeholder API reference for MaClient.
 

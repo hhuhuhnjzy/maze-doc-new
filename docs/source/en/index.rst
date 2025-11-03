@@ -8,11 +8,9 @@ Welcome to Maze Documentation!
    overview
    installation
    quick_start
-   maclient
-   langgraph_client
+   client/index
    examples
-   maclient_api
-   langgraph_client_api
+   api/index
 
 Overview
 --------
@@ -37,12 +35,12 @@ Client placeholder. Introduce the available clients before diving into their ind
 MaClient
 ~~~~~~~~
 
-MaClient placeholder. Explain how to construct workflows with the MaClient SDK.
+MaClient placeholder. Explain how to construct workflows with the :doc:`MaClient guide <client/maclient>`.
 
 LanggraphClient
 ~~~~~~~~~~~~~~~
 
-LanggraphClient placeholder. Describe how to model workflows using the Langgraph client.
+LanggraphClient placeholder. Describe how to model workflows using the :doc:`Langgraph client guide <client/langgraph_client>`.
 
 Examples
 --------
@@ -55,9 +53,9 @@ API
 MaClient API
 ~~~~~~~~~~~~
 
-MaClient API placeholder. Point readers to the full Python reference for MaClient.
+MaClient API placeholder. Point readers to the full Python reference for MaClient in :doc:`client API docs <api/maclient_api>`.
 
 LanggraphClient API
 ~~~~~~~~~~~~~~~~~~~
 
-LanggraphClient API placeholder. Surface the detailed API reference for LanggraphClient.
+LanggraphClient API placeholder. Surface the detailed API reference for LanggraphClient in :doc:`client API docs <api/langgraph_api>`.

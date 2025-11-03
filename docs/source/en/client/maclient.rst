@@ -1,7 +1,5 @@
-.. _maclient_python_sdk:
-
-maclient_python_sdk: Maze Python Client SDK
-==========================================
+MaClient Guide
+==============
 
 Placeholder documentation for the MaClient Python SDK.
 
