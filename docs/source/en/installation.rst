@@ -38,8 +38,8 @@ We only support installation from source now.
 
 .. code-block:: bash
 
-    git clone https://github.com/your-username/your-repo.git
-    cd your-repo
+    git clone https://github.com/QinbinLi/Maze.git
+    cd Maze
 
 2. Install the package in development mode:
 
