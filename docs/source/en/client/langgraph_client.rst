@@ -15,14 +15,6 @@ To use `LanggraphClient`, first create an instance by specifying the address of 
    MAZE_SERVER_ADDR = "MAZE_HEAD_IP:MAZE_HEAD_PORT"
    client = LanggraphClient(addr=MAZE_SERVER_ADDR)
 
-Defining Tasks2222
---------------
-.. code-block:: python
-
-   from maze import LanggraphClient
-
-   MAZE_SERVER_ADDR = "MAZE_HEAD_IP:MAZE_HEAD_PORT"
-   client = LanggraphClient(addr=MAZE_SERVER_ADDR)
 
 
 Defining Tasks
