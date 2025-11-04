@@ -11,5 +11,5 @@ Maze is a powerful framework for building AI workflows. This documentation will 
    installation
    quick_start
    client/index
-   examples/index
+   examples
    api/index
