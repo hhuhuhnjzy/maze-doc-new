@@ -1,4 +1,4 @@
-LanggraphClient Usage Guide
+LanggraphClient
 ===========================
 
 This document describes how to use the `LanggraphClient` class to define and execute distributed tasks within a LangGraph workflow.

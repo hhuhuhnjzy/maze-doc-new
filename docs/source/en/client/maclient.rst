@@ -1,4 +1,4 @@
-MaClient User Guide
+MaClient
 ===================
 
 The MaClient SDK provides a simple and intuitive way to build distributed workflows. This guide covers the key concepts and common usage patterns.
