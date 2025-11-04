@@ -18,6 +18,16 @@ You can verify your Python and pip versions with:
 
     python --version
 
+------------------------
+Using a Virtual Environment (Recommended)
+------------------------
+
+To avoid dependency conflicts, we strongly recommend using a virtual environment:
+
+.. code-block:: bash
+
+    conda create -n maze python=3.10
+    conda activate maze
 
 ------------------
 Install from Source
@@ -39,20 +49,6 @@ We only support installation from source now.
 
 The ``-e`` flag installs the package in "editable" (development) mode, so changes to the source code take effect immediately without reinstalling.
 
-------------------------
-Using a Virtual Environment (Recommended)
-------------------------
-
-To avoid dependency conflicts, we strongly recommend using a virtual environment:
-
-.. code-block:: bash
-
-    python -m venv venv
-    source venv/bin/activate  # Linux/macOS
-    # or
-    venv\Scripts\activate     # Windows
-
-    pip install your-package-name
 
 ------------
 Verify Installation
