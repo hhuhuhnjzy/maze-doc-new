@@ -21,6 +21,7 @@ Defining Tasks
 Use the `@client.task` decorator to register functions as executable nodes in the graph. These functions will be executed remotely via the Maze server.
 
 .. code-block:: python
+
     class GraphState(TypedDict):
        result1: str
        result2: str
@@ -40,6 +41,9 @@ Use the `@client.task` decorator to register functions as executable nodes in th
     def task3(state: GraphState) -> GraphState:
        result = "task3"
        return {"result3": result}
+
+You can use @client.task(resources={'cpu':xxx,'cpu_mem':xxx,'gpu':xxx,'gpu_mem':xxx}) to specify the resources required by the task.
+By default, the task will only request 1 cpu core.
 
 Building the Graph
 ------------------
