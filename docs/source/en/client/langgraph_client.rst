@@ -23,6 +23,8 @@ Defining Tasks
 Use the `@client.task` decorator to register functions as executable nodes in the graph. These functions will be executed remotely via the Maze server.
 
 .. code-block:: python
+    
+    from typing import TypedDict
 
     class GraphState(TypedDict):
        result1: str
