@@ -9,8 +9,4 @@ Maze provides multiple client options to build and orchestrate AI workflows. Cho
    maclient
    langgraph_client
 
-Available Clients
------------------
 
-* **MaClient**: A flexible client for constructing custom AI workflows
-* **LanggraphClient**: A client for modeling workflows using Langgraph framework
