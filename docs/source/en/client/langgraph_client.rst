@@ -21,6 +21,10 @@ Defining Tasks
 Use the `@client.task` decorator to register functions as executable nodes in the graph. These functions will be executed remotely via the Maze server.
 
 .. code-block:: python
+    class GraphState(TypedDict):
+       result1: str
+       result2: str
+       result3: str
 
    @client.task
    def task1(state: GraphState) -> GraphState:
@@ -45,12 +49,7 @@ Construct your workflow using `StateGraph` from LangGraph. Add nodes and edges t
 .. code-block:: python
 
    from langgraph.graph import StateGraph, START, END
-
-   class GraphState(TypedDict):
-       result1: str
-       result2: str
-       result3: str
-
+ 
    builder = StateGraph(GraphState)
    builder.add_node("task1", task1)
    builder.add_node("task2", task2)
@@ -75,6 +74,3 @@ Invoke the compiled graph with an initial state to start execution.
 
    initial_state = {"results": []}
    result = graph.invoke(initial_state)
-
-
-
