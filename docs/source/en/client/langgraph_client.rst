@@ -26,18 +26,18 @@ Use the `@client.task` decorator to register functions as executable nodes in th
        result2: str
        result3: str
 
-   @client.task
-   def task1(state: GraphState) -> GraphState:
+    @client.task
+    def task1(state: GraphState) -> GraphState:
        result = "task1"
        return {"result1": result}
 
-   @client.task
-   def task2(state: GraphState) -> GraphState:
+    @client.task
+    def task2(state: GraphState) -> GraphState:
        result = "task2"
        return {"result2": result}
 
-   @client.task
-   def task3(state: GraphState) -> GraphState:
+    @client.task
+    def task3(state: GraphState) -> GraphState:
        result = "task3"
        return {"result3": result}
 
