@@ -5,9 +5,8 @@ Overview
 What is Maze?
 =============
 
-Maze is a workflow orchestration framework designed to address critical challenges in parallel task execution and distributed computing. It provides intelligent resource management, true task parallelism, and native distributed deployment capabilities, making it ideal for building scalable and high-performance workflow applications.
+Maze is a agent workflow orchestration framework designed to address critical challenges in parallel task execution and distributed computing. It provides intelligent resource management, true task parallelism, and native distributed deployment capabilities, making it ideal for building scalable and high-performance workflow applications.
 
-Unlike traditional Python-based workflow frameworks that are constrained by the Global Interpreter Lock (GIL), Maze enables genuine parallel execution of ready-to-run tasks while preventing resource contention issues such as GPU out-of-memory errors.
 
 Core Features
 =============
