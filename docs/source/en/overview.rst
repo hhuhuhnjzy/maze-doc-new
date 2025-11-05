@@ -14,7 +14,7 @@ Core Features
 Task-level
 -------------------
 
-Unlike LangGraph’s agent-level execution model—which runs the entire agent workflow sequentially in a single process—Maze employs task-level parallelism, enabling true concurrent execution of individual tasks. In compute-intensive scenarios, Maze can significantly improve end-to-end (e2e) performance. **Moreover, Maze can serve as a runtime backend for LangGraph**, allowing existing LangGraph workflows to be seamlessly migrated to Maze and automatically gain task-level parallelism without modifying original logic. [**Example**](https://github.com/QinbinLi/Maze/tree/develop/examples/financial_risk_workflow)
+Unlike LangGraph’s agent-level execution model—which runs the entire agent workflow sequentially in a single process—Maze employs task-level parallelism, enabling true concurrent execution of individual tasks. In compute-intensive scenarios, Maze can significantly improve end-to-end (e2e) performance. **Moreover, Maze can serve as a runtime backend for LangGraph**, allowing existing LangGraph workflows to be seamlessly migrated to Maze and automatically gain task-level parallelism without modifying original logic. `Example <https://github.com/QinbinLi/Maze/tree/develop/examples/financial_risk_workflow>`_
 
 Resource Management
 ---------------------
