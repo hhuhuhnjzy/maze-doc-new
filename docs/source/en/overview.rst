@@ -11,22 +11,17 @@ Maze is a agent workflow orchestration framework designed to address critical ch
 Core Features
 =============
 
-Resource Management
+Task-level
 -------------------
 
-Maze intelligently coordinates resource usage across concurrent workflows and parallel tasks. When multiple tasks run simultaneously—whether within a single workflow or across multiple workflows—Maze's resource management system prevents severe overload issues like GPU OOM errors through sophisticated coordination mechanisms.
+Unlike LangGraph’s agent-level execution model—which runs the entire agent workflow sequentially in a single process—Maze employs task-level parallelism, enabling true concurrent execution of individual tasks. In compute-intensive scenarios, Maze can significantly improve end-to-end (e2e) performance. **Moreover, Maze can serve as a runtime backend for LangGraph**, allowing existing LangGraph workflows to be seamlessly migrated to Maze and automatically gain task-level parallelism without modifying original logic. [**Example**](https://github.com/QinbinLi/Maze/tree/develop/examples/financial_risk_workflow)
 
-True Task Parallelism
+Resource Management
 ---------------------
 
-Maze breaks free from Python's GIL limitations to deliver genuine parallel execution of ready-to-run tasks. This represents a significant advantage over frameworks like LangGraph, which cannot achieve true parallelism due to GIL constraints. Maze supports seamless migration from LangGraph-based workflows while unlocking real parallel execution capabilities.
+When multiple tasks run in parallel within a single workflow—or when multiple workflows execute concurrently—resource contention can occur. Without proper coordination, this may lead to severe resource overloads, such as GPU out-of-memory (OOM) errors.
 
 Distributed Deployment
 ----------------------
 
-With native distributed deployment support, Maze enables you to build highly available and scalable clusters. This architecture meets the demands of large-scale concurrency and high-performance computing scenarios, allowing workflows to scale horizontally across multiple machines.
-
-Visual Workflow Designer
-------------------------
-
-Maze provides an intuitive web-based interface with drag-and-drop functionality for designing and building workflows visually. Users can create complex workflows without writing code, monitor execution in real-time, and inspect results through an easy-to-use dashboard.
+Maze natively supports distributed deployment, allowing you to build highly available and scalable Maze clusters to meet the demands of large-scale concurrency and high-performance computing.
