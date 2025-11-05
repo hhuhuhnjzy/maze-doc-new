@@ -16,7 +16,7 @@ MaClient
 
    .. code-block:: python
 
-       from maze.client.maze.client import MaClient
+       from maze import MaClient
 
        # Connect to local server
        client = MaClient()
@@ -470,7 +470,7 @@ Decorators
 
    .. code-block:: python
 
-       from maze.client.maze.decorator import task
+       from maze import task
 
        @task(
            inputs=["text"],

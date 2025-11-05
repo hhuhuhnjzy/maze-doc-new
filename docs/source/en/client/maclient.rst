@@ -78,8 +78,7 @@ Example - Data Processing Pipeline:
 
 .. code-block:: python
 
-    from maze.client.maze.client import MaClient
-    from maze.client.maze.decorator import task
+    from maze import MaClient, task
 
     @task(inputs=["filename"], outputs=["data"])
     def load_data(params):
@@ -130,8 +129,7 @@ Example - Parallel Data Export:
 
 .. code-block:: python
 
-    from maze.client.maze.client import MaClient
-    from maze.client.maze.decorator import task
+    from maze import MaClient, task
 
     @task(inputs=["source"], outputs=["data"])
     def fetch_data(params):
@@ -187,8 +185,7 @@ Example - Parallel Processing with Merge:
 
 .. code-block:: python
 
-    from maze.client.maze.client import MaClient
-    from maze.client.maze.decorator import task
+    from maze import MaClient, task
 
     @task(inputs=["input"], outputs=["data"])
     def prepare_data(params):

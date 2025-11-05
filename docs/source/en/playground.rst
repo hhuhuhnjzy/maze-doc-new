@@ -59,19 +59,19 @@ Wait for the startup messages:
 .. code-block:: text
 
     ============================================================
-    🎮 正在启动 Maze Playground...
+    🎮 Starting Maze Playground...
     ============================================================
-    🔧 启动 Playground 后端 (http://localhost:3001)...
-    ✅ Playground 后端已启动
-    🎨 启动 Playground 前端 (http://localhost:5173)...
-    ✅ Playground 前端已启动
+    🔧 Starting Playground backend (http://localhost:3001)...
+    ✅ Playground backend started
+    🎨 Starting Playground frontend (http://localhost:5173)...
+    ✅ Playground frontend started
     
     ============================================================
-    🎉 Playground 已成功启动！
+    🎉 Playground successfully started!
     ============================================================
-    📱 前端地址: http://localhost:5173
-    🔌 后端地址: http://localhost:3001
-    🎮 打开浏览器访问 http://localhost:5173 开始使用
+    📱 Frontend address: http://localhost:5173
+    🔌 Backend address: http://localhost:3001
+    🎮 Open browser and visit http://localhost:5173 to get started
     ============================================================
 
 Once started, open your browser and navigate to ``http://localhost:5173``.

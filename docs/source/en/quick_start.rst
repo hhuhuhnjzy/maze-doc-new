@@ -17,8 +17,7 @@ First, define your task functions using the ``@task`` decorator:
 
 .. code-block:: python
 
-    from maze.client.maze.client import MaClient
-    from maze.client.maze.decorator import task
+    from maze import MaClient, task
 
     @task(
         inputs=["text"],
@@ -108,8 +107,7 @@ Here's the complete code in one place:
 
 .. code-block:: python
 
-    from maze.client.maze.client import MaClient
-    from maze.client.maze.decorator import task
+    from maze import MaClient, task
 
     # Define tasks
     @task(
@@ -152,19 +150,19 @@ When you run this example, you should see output similar to:
 
 .. code-block:: text
 
-    收到消息: {'type': 'start_task', 'data': {'task_id': '...'}}
+    Received message: {'type': 'start_task', 'data': {'task_id': '...'}}
     ▶ Task started: ...
-    收到消息: {'type': 'finish_task', 'data': {'task_id': '...', 'result': {'result': 'HELLO WORLD'}}}
+    Received message: {'type': 'finish_task', 'data': {'task_id': '...', 'result': {'result': 'HELLO WORLD'}}}
     ✓ Task completed: ...
       Result: {'result': 'HELLO WORLD'}
 
-    收到消息: {'type': 'start_task', 'data': {'task_id': '...'}}
+    Received message: {'type': 'start_task', 'data': {'task_id': '...'}}
     ▶ Task started: ...
-    收到消息: {'type': 'finish_task', 'data': {'task_id': '...', 'result': {'result': 'Processed: HELLO WORLD'}}}
+    Received message: {'type': 'finish_task', 'data': {'task_id': '...', 'result': {'result': 'Processed: HELLO WORLD'}}}
     ✓ Task completed: ...
       Result: {'result': 'Processed: HELLO WORLD'}
 
-    收到消息: {'type': 'finish_workflow', 'data': {}}
+    Received message: {'type': 'finish_workflow', 'data': {}}
     🎉 Workflow completed!
 
 Next Steps
