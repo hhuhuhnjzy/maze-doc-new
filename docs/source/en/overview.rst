@@ -24,4 +24,4 @@ When multiple tasks run in parallel within a single workflow—or when multiple 
 Distributed Deployment
 ----------------------
 
-Maze natively supports distributed deployment, allowing you to build highly available and scalable Maze clusters to meet the demands of large-scale concurrency and high-performance computing.
+Maze supports not only standalone but also distributed deployment, allowing you to build highly available and scalable Maze clusters to meet the demands of large-scale concurrency and high-performance computing.
