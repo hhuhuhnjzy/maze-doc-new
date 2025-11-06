@@ -110,9 +110,7 @@ Example - Data Processing Pipeline:
 
     # Run workflow
     workflow.run()
-    for msg in workflow.get_results():
-        if msg.get("type") == "finish_workflow":
-            break
+    workflow.show_results()
 
 Multiple End Tasks Workflow
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -166,9 +164,7 @@ Example - Parallel Data Export:
     # Both are end tasks (no tasks depend on them)
 
     workflow.run()
-    for msg in workflow.get_results():
-        if msg.get("type") == "finish_workflow":
-            break
+    workflow.show_results()
 
 Diamond Pattern Workflow
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -234,9 +230,7 @@ Example - Parallel Processing with Merge:
     # 3. t4 runs after both t2 and t3 complete
 
     workflow.run()
-    for msg in workflow.get_results():
-        if msg.get("type") == "finish_workflow":
-            break
+    workflow.show_results()
 
 Complex Workflows
 ~~~~~~~~~~~~~~~~~
@@ -364,10 +358,30 @@ Best Practices:
 Handling Workflow Results
 --------------------------
 
-Real-time Result Streaming
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+Simple Result Display
+~~~~~~~~~~~~~~~~~~~~~
 
-The ``get_results()`` method returns a generator that streams execution events:
+For quick testing and demos, use ``show_results()`` for automatic progress printing:
+
+.. code-block:: python
+
+    workflow.run()
+    result = workflow.show_results()
+    # Automatically prints execution progress
+    # Returns final task outputs
+    
+    print(f"Final result: {result}")
+
+This method automatically:
+
+- Prints execution progress (task start, completion, errors)
+- Downloads files from file-type outputs
+- Returns the final task's output dictionary
+
+Real-time Result Streaming (Advanced)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For custom result processing, the ``get_results()`` method returns a generator that streams execution events:
 
 .. code-block:: python
 

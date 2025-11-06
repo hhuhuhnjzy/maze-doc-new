@@ -292,6 +292,73 @@ MaWorkflow
           except Exception as e:
               print(f"Workflow execution failed: {e}")
 
+   .. py:method:: show_results(output_dir="workflow_results")
+
+      Simple interface to run workflow and display results with automatic progress printing.
+
+      This is a high-level wrapper around :py:meth:`get_results` that automatically enables
+      verbose output and handles file downloads. Perfect for quick testing and demos.
+
+      :param str output_dir: Directory for downloading result files (default: ``"workflow_results"``)
+      :returns: Final task output with file paths replaced by local paths
+      :rtype: dict
+      :raises Exception: If an error occurs during execution
+
+      **Example 1 - Basic usage:**
+
+      .. code-block:: python
+
+          workflow.run()
+          result = workflow.show_results()
+          # Automatically prints execution progress
+          # Returns final task outputs
+
+      **Example 2 - Custom output directory:**
+
+      .. code-block:: python
+
+          workflow.run()
+          result = workflow.show_results(output_dir="my_results")
+          print(f"Final result: {result}")
+
+      **Example 3 - Complete workflow:**
+
+      .. code-block:: python
+
+          from maze import MaClient, task
+
+          @task(inputs=["text"], outputs=["result"])
+          def process(params):
+              return {"result": params["text"].upper()}
+
+          client = MaClient()
+          workflow = client.create_workflow()
+          
+          task1 = workflow.add_task(process, inputs={"text": "hello"})
+          
+          workflow.run()
+          result = workflow.show_results()
+          # Output:
+          # ▶ Task started: 12345678...
+          # ✓ Task completed: 12345678...
+          # 
+          # Downloading result files...
+          # ✓ Workflow completed
+          
+          print(result)  # {'result': 'HELLO'}
+
+      .. note::
+         ``show_results()`` is designed for simplicity and convenience. For advanced use cases
+         requiring custom result processing, use :py:meth:`get_results` instead.
+
+      .. tip::
+         This method automatically:
+         
+         - Prints execution progress to console
+         - Downloads files from file-type outputs
+         - Returns the final task's output dictionary
+         - Handles file path replacement with local paths
+
 MaTask
 ------
 

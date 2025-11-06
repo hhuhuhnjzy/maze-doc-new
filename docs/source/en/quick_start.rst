@@ -84,21 +84,9 @@ Execute the workflow and get results:
     # Submit the workflow for execution
     workflow.run()
     
-    # Get real-time results
-    for message in workflow.get_results():
-        msg_type = message.get("type")
-        msg_data = message.get("data", {})
-        
-        if msg_type == "start_task":
-            print(f"▶ Task started: {msg_data.get('task_id')}")
-            
-        elif msg_type == "finish_task":
-            print(f"✓ Task completed: {msg_data.get('task_id')}")
-            print(f"  Result: {msg_data.get('result')}\n")
-            
-        elif msg_type == "finish_workflow":
-            print("🎉 Workflow completed!")
-            break
+    # Display results with automatic progress printing
+    result = workflow.show_results()
+    print(f"Final output: {result}")
 
 Complete Example
 ----------------
@@ -136,12 +124,10 @@ Here's the complete code in one place:
     task1 = workflow.add_task(uppercase_text, inputs={"text": "hello world"})
     task2 = workflow.add_task(add_prefix, inputs={"text": task1.outputs["result"]})
 
-    # Run and get results
+    # Run and show results
     workflow.run()
-    for message in workflow.get_results():
-        if message.get("type") == "finish_workflow":
-            print("Workflow completed!")
-            break
+    result = workflow.show_results()
+    print(f"Final output: {result}")
 
 Expected Output
 ~~~~~~~~~~~~~~~
