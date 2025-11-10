@@ -109,8 +109,8 @@ Example - Data Processing Pipeline:
     t3 = workflow.add_task(analyze_data, inputs={"data": t2.outputs["cleaned_data"]})
 
     # Run workflow
-    workflow.run()
-    workflow.show_results()
+    run_id = workflow.run()
+    workflow.show_results(run_id)
 
 Multiple End Tasks Workflow
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -163,8 +163,8 @@ Example - Parallel Data Export:
     # t2 and t3 run in parallel after t1 completes
     # Both are end tasks (no tasks depend on them)
 
-    workflow.run()
-    workflow.show_results()
+    run_id = workflow.run()
+    workflow.show_results(run_id)
 
 Diamond Pattern Workflow
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -229,8 +229,8 @@ Example - Parallel Processing with Merge:
     # 2. t2 and t3 run in parallel after t1
     # 3. t4 runs after both t2 and t3 complete
 
-    workflow.run()
-    workflow.show_results()
+    run_id = workflow.run()
+    workflow.show_results(run_id)
 
 Complex Workflows
 ~~~~~~~~~~~~~~~~~
@@ -358,36 +358,58 @@ Best Practices:
 Handling Workflow Results
 --------------------------
 
-Simple Result Display
-~~~~~~~~~~~~~~~~~~~~~
+Run ID Concept
+~~~~~~~~~~~~~~
 
-For quick testing and demos, use ``show_results()`` for automatic progress printing:
+Each workflow execution generates a unique ``run_id``. The same workflow can be run multiple times, 
+with each run having its own independent ``run_id`` and results.
 
 .. code-block:: python
 
-    workflow.run()
-    result = workflow.show_results()
-    # Automatically prints execution progress
-    # Returns final task outputs
+    # Same workflow, multiple runs
+    run_id1 = workflow.run()
+    run_id2 = workflow.run()
+    run_id3 = workflow.run()
     
-    print(f"Final result: {result}")
+    # Each run has independent results
+    result1 = workflow.show_results(run_id1)
+    result2 = workflow.show_results(run_id2)
+    result3 = workflow.show_results(run_id3)
+
+Simple Result Display
+~~~~~~~~~~~~~~~~~~~~~
+
+For quick testing and demos, use ``show_results(run_id)`` for automatic progress printing:
+
+.. code-block:: python
+
+    run_id = workflow.run()
+    result = workflow.show_results(run_id)
+    # Automatically prints execution progress
+    # Returns execution summary with task results
+    
+    if result["workflow_completed"]:
+        print(f"Task results: {result['task_results']}")
 
 This method automatically:
 
-- Prints execution progress (task start, completion, errors)
-- Downloads files from file-type outputs
-- Returns the final task's output dictionary
+- Prints formatted execution progress (task start, completion, errors)
+- Handles exception messages with simplified display
+- Returns a structured summary dictionary
+- Uses client-side caching for efficient repeated queries
 
 Real-time Result Streaming (Advanced)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-For custom result processing, the ``get_results()`` method returns a generator that streams execution events:
+For custom result processing, use ``get_results(run_id)`` to get raw execution messages:
 
 .. code-block:: python
 
-    workflow.run()
+    run_id = workflow.run()
     
-    for message in workflow.get_results():
+    messages = workflow.get_results(run_id, verbose=False)
+    
+    for message in messages:
         msg_type = message.get("type")
         msg_data = message.get("data", {})
         
@@ -400,16 +422,20 @@ For custom result processing, the ``get_results()`` method returns a generator t
             result = msg_data.get("result")
             print(f"Task {task_id} completed: {result}")
             
+        elif msg_type == "task_exception":
+            task_id = msg_data.get("task_id")
+            error = msg_data.get("result")
+            print(f"Task {task_id} failed: {error}")
+            
         elif msg_type == "finish_workflow":
             print("Workflow completed!")
-            break
 
 Message Types:
 
 - ``start_task``: A task has started execution
-- ``finish_task``: A task has completed (includes results)
+- ``finish_task``: A task has completed successfully (includes results)
+- ``task_exception``: A task failed with an exception (includes error traceback)
 - ``finish_workflow``: The entire workflow has completed
-- ``error``: An error occurred during execution
 
 Collecting Results
 ~~~~~~~~~~~~~~~~~~
@@ -418,31 +444,60 @@ You can collect all results for later processing:
 
 .. code-block:: python
 
-    workflow.run()
+    run_id = workflow.run()
+    
+    messages = workflow.get_results(run_id, verbose=False)
     
     task_results = {}
-    for message in workflow.get_results():
+    for message in messages:
         if message.get("type") == "finish_task":
             task_id = message["data"]["task_id"]
             result = message["data"]["result"]
             task_results[task_id] = result
-        elif message.get("type") == "finish_workflow":
-            break
     
     # Process collected results
     for task_id, result in task_results.items():
         print(f"Task {task_id}: {result}")
 
-Silent Mode
-~~~~~~~~~~~
+Query Specific Task Results
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Disable console output by setting ``verbose=False``:
+After fetching results, you can query specific task results from the cache:
 
 .. code-block:: python
 
-    for message in workflow.get_results(verbose=False):
-        # Process messages without console output
-        pass
+    run_id = workflow.run()
+    workflow.get_results(run_id, verbose=False)  # Cache results
+    
+    # Query specific tasks
+    task1_result = workflow.get_task_result(run_id, task1.task_id)
+    task2_result = workflow.get_task_result(run_id, task2.task_id)
+    
+    print(f"Task 1: {task1_result}")
+    print(f"Task 2: {task2_result}")
+
+Results Caching
+~~~~~~~~~~~~~~~
+
+Results are automatically cached client-side after the first query:
+
+.. code-block:: python
+
+    run_id = workflow.run()
+    
+    # First call - fetches from server
+    messages1 = workflow.get_results(run_id, verbose=False)
+    
+    # Second call - returns from cache (no server connection)
+    messages2 = workflow.get_results(run_id, verbose=False)
+    
+    # Check cached runs
+    cached_runs = workflow.list_cached_runs()
+    print(f"Cached runs: {cached_runs}")
+    
+    # Clear cache
+    workflow.clear_cache(run_id)  # Clear specific run
+    # workflow.clear_cache()      # Clear all cache
 
 Best Practices
 --------------

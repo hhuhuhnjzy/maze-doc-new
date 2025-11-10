@@ -82,11 +82,15 @@ Execute the workflow and get results:
 .. code-block:: python
 
     # Submit the workflow for execution
-    workflow.run()
+    run_id = workflow.run()
+    print(f"Workflow started with run_id: {run_id}")
     
     # Display results with automatic progress printing
-    result = workflow.show_results()
-    print(f"Final output: {result}")
+    result = workflow.show_results(run_id)
+    
+    if result["workflow_completed"]:
+        print(f"Workflow completed successfully!")
+        print(f"Task results: {result['task_results']}")
 
 Complete Example
 ----------------
@@ -125,9 +129,12 @@ Here's the complete code in one place:
     task2 = workflow.add_task(add_prefix, inputs={"text": task1.outputs["result"]})
 
     # Run and show results
-    workflow.run()
-    result = workflow.show_results()
-    print(f"Final output: {result}")
+    run_id = workflow.run()
+    result = workflow.show_results(run_id)
+    
+    if result["workflow_completed"]:
+        print(f"Workflow completed!")
+        print(f"Results: {result['task_results']}")
 
 Expected Output
 ~~~~~~~~~~~~~~~
@@ -136,20 +143,21 @@ When you run this example, you should see output similar to:
 
 .. code-block:: text
 
-    Received message: {'type': 'start_task', 'data': {'task_id': '...'}}
-    ▶ Task started: ...
-    Received message: {'type': 'finish_task', 'data': {'task_id': '...', 'result': {'result': 'HELLO WORLD'}}}
-    ✓ Task completed: ...
-      Result: {'result': 'HELLO WORLD'}
-
-    Received message: {'type': 'start_task', 'data': {'task_id': '...'}}
-    ▶ Task started: ...
-    Received message: {'type': 'finish_task', 'data': {'task_id': '...', 'result': {'result': 'Processed: HELLO WORLD'}}}
-    ✓ Task completed: ...
-      Result: {'result': 'Processed: HELLO WORLD'}
-
-    Received message: {'type': 'finish_workflow', 'data': {}}
-    🎉 Workflow completed!
+    Workflow started with run_id: a1b2c3d4-e5f6-7890-abcd-ef1234567890
+    🔗 Connected to server, starting workflow execution...
+    ▶ Task started: 12345678
+    ✓ Task completed: 12345678
+      result: HELLO WORLD
+    ▶ Task started: 87654321
+    ✓ Task completed: 87654321
+      result: Processed: HELLO WORLD
+    ✅ Workflow execution completed!
+    
+    Workflow completed!
+    Results: {
+        'task_id_1': {'result': 'HELLO WORLD'},
+        'task_id_2': {'result': 'Processed: HELLO WORLD'}
+    }
 
 Next Steps
 ----------
@@ -167,5 +175,8 @@ Key Concepts to Remember
 - **Tasks**: Define your processing logic using the ``@task`` decorator
 - **Workflows**: Container for tasks and their dependencies
 - **Automatic Dependencies**: Referencing task outputs automatically creates edges
-- **Real-time Results**: Use ``get_results()`` to stream execution status and outputs
+- **Run ID**: Each workflow execution gets a unique ``run_id`` for result retrieval
+- **Multiple Runs**: Same workflow can be run multiple times with independent results
+- **Result Methods**: Use ``show_results(run_id)`` for formatted output or ``get_results(run_id)`` for raw messages
+- **Client-side Caching**: Results are cached automatically for efficient repeated queries
 

@@ -179,25 +179,32 @@ MaWorkflow
 
       Submit the workflow for execution.
 
+      :returns: Unique run ID for this execution
+      :rtype: str
       :raises Exception: If the submission fails
 
       **Example:**
 
       .. code-block:: python
 
-          workflow.run()
+          run_id = workflow.run()
+          print(f"Workflow started with run_id: {run_id}")
 
       .. note::
-         This method only submits the workflow. Use :py:meth:`get_results` to monitor execution and retrieve results.
+         This method submits the workflow and returns a ``run_id``. The same workflow can be run multiple times, 
+         with each execution having a unique ``run_id``. Use this ``run_id`` with :py:meth:`get_results` or 
+         :py:meth:`show_results` to retrieve execution results.
 
-   .. py:method:: get_results(verbose=True)
+   .. py:method:: get_results(run_id, verbose=True)
 
-      Stream real-time execution results via WebSocket.
+      Retrieve execution results for a specific workflow run. Results are cached client-side for efficient repeated queries.
 
-      :param bool verbose: If ``True``, print messages to console. Default is ``True``.
-      :returns: Generator yielding execution messages
-      :rtype: Iterator[dict]
+      :param str run_id: The run ID returned by :py:meth:`run`
+      :param bool verbose: If ``True``, print raw messages to console. Default is ``True``.
+      :returns: List of all execution messages
+      :rtype: List[dict]
       :raises Exception: If an error occurs during execution
+      :raises ValueError: If ``run_id`` is invalid
 
       **Message Format:**
 
@@ -221,19 +228,35 @@ MaWorkflow
             {
                 "type": "start_task",
                 "data": {
-                    "task_id": "task_12345"
+                    "workflow_id": "workflow_123",
+                    "task_id": "task_12345",
+                    "node_ip": "127.0.0.1"
                 }
             }
 
-      - ``finish_task``: A task has completed
+      - ``finish_task``: A task has completed successfully
 
         .. code-block:: python
 
             {
                 "type": "finish_task",
                 "data": {
+                    "workflow_id": "workflow_123",
                     "task_id": "task_12345",
                     "result": {"output_key": "output_value"}
+                }
+            }
+
+      - ``task_exception``: A task failed with an exception
+
+        .. code-block:: python
+
+            {
+                "type": "task_exception",
+                "data": {
+                    "workflow_id": "workflow_123",
+                    "task_id": "task_12345",
+                    "result": "Traceback (most recent call last):\\n..."
                 }
             }
 
@@ -246,82 +269,104 @@ MaWorkflow
                 "data": {}
             }
 
-      **Example 1 - Basic usage:**
+      **Example 1 - Basic usage (raw messages):**
 
       .. code-block:: python
 
-          workflow.run()
+          run_id = workflow.run()
           
-          for message in workflow.get_results():
-              msg_type = message.get("type")
-              
-              if msg_type == "finish_task":
-                  task_id = message["data"]["task_id"]
-                  result = message["data"]["result"]
-                  print(f"Task {task_id} completed: {result}")
-                  
-              elif msg_type == "finish_workflow":
-                  print("Workflow completed!")
-                  break
+          messages = workflow.get_results(run_id, verbose=True)
+          # Prints raw messages like:
+          # {'type': 'start_task', 'data': {...}}
+          # {'type': 'finish_task', 'data': {...}}
+          
+          for msg in messages:
+              if msg["type"] == "finish_task":
+                  print(f"Task result: {msg['data']['result']}")
 
-      **Example 2 - Silent mode:**
+      **Example 2 - Silent mode (no printing):**
 
       .. code-block:: python
 
-          workflow.run()
+          run_id = workflow.run()
           
-          results = []
-          for message in workflow.get_results(verbose=False):
-              if message.get("type") == "finish_task":
-                  results.append(message["data"]["result"])
-              elif message.get("type") == "finish_workflow":
-                  break
+          messages = workflow.get_results(run_id, verbose=False)
+          # No console output, just returns messages
+          
+          task_results = {}
+          for msg in messages:
+              if msg["type"] == "finish_task":
+                  task_id = msg["data"]["task_id"]
+                  task_results[task_id] = msg["data"]["result"]
 
-      **Example 3 - Error handling:**
+      **Example 3 - Multiple queries (uses cache):**
 
       .. code-block:: python
 
-          workflow.run()
+          run_id = workflow.run()
           
-          try:
-              for message in workflow.get_results():
-                  if message.get("type") == "error":
-                      print(f"Error: {message['data']}")
-                  elif message.get("type") == "finish_workflow":
-                      break
-          except Exception as e:
-              print(f"Workflow execution failed: {e}")
+          # First query - fetches from server
+          messages1 = workflow.get_results(run_id, verbose=False)
+          
+          # Second query - returns from cache (no server connection)
+          messages2 = workflow.get_results(run_id, verbose=False)
+          
+          assert messages1 == messages2  # Same data
 
-   .. py:method:: show_results(output_dir="workflow_results")
+      .. note::
+         Results are cached client-side after the first query. Subsequent calls with the same 
+         ``run_id`` return cached data without reconnecting to the server. This is a workaround 
+         for the server's one-time consumption design.
 
-      Simple interface to run workflow and display results with automatic progress printing.
+      .. tip::
+         For user-friendly formatted output, use :py:meth:`show_results` instead. Use ``get_results`` 
+         when you need the raw message data for custom processing.
 
-      This is a high-level wrapper around :py:meth:`get_results` that automatically enables
-      verbose output and handles file downloads. Perfect for quick testing and demos.
+   .. py:method:: show_results(run_id, output_dir="workflow_results")
 
-      :param str output_dir: Directory for downloading result files (default: ``"workflow_results"``)
-      :returns: Final task output with file paths replaced by local paths
+      Display workflow execution results with formatted, user-friendly output.
+
+      This is a high-level method that fetches execution messages and presents them in a 
+      readable format. It also handles file downloads for the ``client.front`` module.
+
+      :param str run_id: The run ID returned by :py:meth:`run`
+      :param str output_dir: Directory for downloading result files (default: ``"workflow_results"``, only used in ``client.front``)
+      :returns: Dictionary with execution summary and task results
       :rtype: dict
       :raises Exception: If an error occurs during execution
 
+      **Return Value:**
+
+      For ``client.maze`` module:
+
+      .. code-block:: python
+
+          {
+              "task_results": {
+                  "task_id_1": {"output_key": "value"},
+                  "task_id_2": {"output_key": "value"}
+              },
+              "workflow_completed": True,
+              "has_exception": False,
+              "exception_tasks": []
+          }
+
       **Example 1 - Basic usage:**
 
       .. code-block:: python
 
-          workflow.run()
-          result = workflow.show_results()
-          # Automatically prints execution progress
-          # Returns final task outputs
+          run_id = workflow.run()
+          result = workflow.show_results(run_id)
+          # Prints formatted output:
+          # 🔗 Connected to server, starting workflow execution...
+          # ▶ Task started: task_12345678
+          # ✓ Task completed: task_12345678
+          #   result: HELLO WORLD
+          # ✅ Workflow execution completed!
+          
+          print(result["task_results"])
 
-      **Example 2 - Custom output directory:**
-
-      .. code-block:: python
-
-          workflow.run()
-          result = workflow.show_results(output_dir="my_results")
-          print(f"Final result: {result}")
-
-      **Example 3 - Complete workflow:**
+      **Example 2 - Complete workflow:**
 
       .. code-block:: python
 
@@ -336,28 +381,266 @@ MaWorkflow
           
           task1 = workflow.add_task(process, inputs={"text": "hello"})
           
-          workflow.run()
-          result = workflow.show_results()
-          # Output:
-          # ▶ Task started: 12345678...
-          # ✓ Task completed: 12345678...
-          # 
-          # Downloading result files...
-          # ✓ Workflow completed
+          run_id = workflow.run()
+          result = workflow.show_results(run_id)
           
-          print(result)  # {'result': 'HELLO'}
+          if result["workflow_completed"] and not result["has_exception"]:
+              print("Workflow succeeded!")
+              print(f"Results: {result['task_results']}")
+
+      **Example 3 - Error handling:**
+
+      .. code-block:: python
+
+          run_id = workflow.run()
+          result = workflow.show_results(run_id)
+          
+          if result["has_exception"]:
+              print("Some tasks failed:")
+              for task_id in result["exception_tasks"]:
+                  print(f"  - {task_id}")
+
+      **Example 4 - Multiple runs:**
+
+      .. code-block:: python
+
+          # Run the same workflow multiple times
+          run_id1 = workflow.run()
+          result1 = workflow.show_results(run_id1)
+          
+          run_id2 = workflow.run()
+          result2 = workflow.show_results(run_id2)
+          
+          # Each run has independent results
 
       .. note::
-         ``show_results()`` is designed for simplicity and convenience. For advanced use cases
-         requiring custom result processing, use :py:meth:`get_results` instead.
+         ``show_results()`` is designed for human-readable output. For raw message data,
+         use :py:meth:`get_results` instead.
 
       .. tip::
          This method automatically:
          
-         - Prints execution progress to console
-         - Downloads files from file-type outputs
-         - Returns the final task's output dictionary
-         - Handles file path replacement with local paths
+         - Fetches results using :py:meth:`get_results` (with caching)
+         - Prints formatted progress to console
+         - Simplifies exception messages for readability
+         - Returns a structured summary dictionary
+
+   .. py:method:: print_graph()
+
+      Print an ASCII visualization of the workflow structure to console.
+
+      **Example:**
+
+      .. code-block:: python
+
+          workflow.print_graph()
+          # Output:
+          # ╔══════════════════════════════════════════════════════════════╗
+          # ║              Workflow Structure Visualization               ║
+          # ╚══════════════════════════════════════════════════════════════╝
+          # 
+          # Nodes (Tasks):
+          #   • task_12345678... [process_data]
+          #   • task_87654321... [format_output]
+          # 
+          # Dependencies (Edges):
+          #   task_12345678... → task_87654321...
+
+   .. py:method:: draw_graph(output_path="workflow.png", method="auto", figsize=(12, 8), dpi=300)
+
+      Export the workflow graph as an image file.
+
+      :param str output_path: Path for the output image file. Supported formats: PNG, PDF, SVG, JPG
+      :param str method: Rendering method - ``"auto"`` (default), ``"graphviz"``, or ``"matplotlib"``
+      :param tuple figsize: Figure size for matplotlib method (width, height in inches)
+      :param int dpi: Image resolution in dots per inch
+      :returns: Path to the generated image file
+      :rtype: str
+      :raises ImportError: If required libraries are not installed
+
+      **Example 1 - Basic usage:**
+
+      .. code-block:: python
+
+          workflow.draw_graph("my_workflow.png")
+          # Creates my_workflow.png using available library
+
+      **Example 2 - High-resolution PDF:**
+
+      .. code-block:: python
+
+          workflow.draw_graph(
+              output_path="workflow.pdf",
+              method="graphviz",
+              dpi=600
+          )
+
+      **Example 3 - Custom size with matplotlib:**
+
+      .. code-block:: python
+
+          workflow.draw_graph(
+              output_path="workflow.png",
+              method="matplotlib",
+              figsize=(16, 10),
+              dpi=150
+          )
+
+      .. note::
+         Requires either ``graphviz`` (recommended) or ``matplotlib`` + ``networkx``:
+         
+         .. code-block:: bash
+         
+             # Option 1: Graphviz (recommended)
+             pip install graphviz
+             
+             # Option 2: Matplotlib + NetworkX
+             pip install matplotlib networkx
+
+   .. py:method:: get_graph_mermaid()
+
+      Generate Mermaid diagram syntax for the workflow.
+
+      :returns: Mermaid diagram code as string
+      :rtype: str
+
+      **Example:**
+
+      .. code-block:: python
+
+          mermaid_code = workflow.get_graph_mermaid()
+          print(mermaid_code)
+          # Output:
+          # graph TD
+          #     task_12345678["process_data"]
+          #     task_87654321["format_output"]
+          #     task_12345678 --> task_87654321
+
+      .. tip::
+         Copy the output to `mermaid.live <https://mermaid.live>`_ for online visualization.
+
+   .. py:method:: get_graph_info()
+
+      Get detailed structural information about the workflow graph.
+
+      :returns: Dictionary with nodes, edges, and statistics
+      :rtype: dict
+
+      **Return Format:**
+
+      .. code-block:: python
+
+          {
+              "nodes": {
+                  "task_id_1": {
+                      "name": "task_name",
+                      "func_name": "function_name",
+                      "inputs": ["input1", "input2"],
+                      "outputs": ["output1", "output2"],
+                      "resources": {"cpu": 1, "cpu_mem": 0, "gpu": 0, "gpu_mem": 0}
+                  },
+                  ...
+              },
+              "edges": [
+                  ["task_id_1", "task_id_2"],
+                  ...
+              ],
+              "stats": {
+                  "total_nodes": 5,
+                  "total_edges": 4,
+                  "max_depth": 3
+              }
+          }
+
+      **Example:**
+
+      .. code-block:: python
+
+          info = workflow.get_graph_info()
+          print(f"Total tasks: {info['stats']['total_nodes']}")
+          print(f"Total dependencies: {info['stats']['total_edges']}")
+
+   .. py:method:: get_task_result(run_id, task_id)
+
+      Query a specific task's result from cached workflow execution.
+
+      :param str run_id: The run ID of the workflow execution
+      :param str task_id: The task ID to query
+      :returns: Task result dictionary, or ``None`` if not found
+      :rtype: Optional[dict]
+      :raises ValueError: If ``run_id`` is not in cache (must call :py:meth:`get_results` or :py:meth:`show_results` first)
+
+      **Example 1 - Query specific task:**
+
+      .. code-block:: python
+
+          run_id = workflow.run()
+          workflow.get_results(run_id, verbose=False)  # Cache results
+          
+          # Query specific task
+          task_result = workflow.get_task_result(run_id, task1.task_id)
+          print(f"Task1 output: {task_result}")
+
+      **Example 2 - Check multiple tasks:**
+
+      .. code-block:: python
+
+          run_id = workflow.run()
+          workflow.show_results(run_id)  # Cache results
+          
+          for task in [task1, task2, task3]:
+              result = workflow.get_task_result(run_id, task.task_id)
+              if result:
+                  print(f"{task.task_name}: {result}")
+              else:
+                  print(f"{task.task_name}: No result found")
+
+      .. note::
+         This method requires that results for ``run_id`` are already cached. 
+         Call :py:meth:`get_results` or :py:meth:`show_results` first to populate the cache.
+
+   .. py:method:: list_cached_runs()
+
+      List all run IDs that have cached results.
+
+      :returns: List of cached run IDs
+      :rtype: List[str]
+
+      **Example:**
+
+      .. code-block:: python
+
+          # Run workflow multiple times
+          run_id1 = workflow.run()
+          workflow.get_results(run_id1, verbose=False)
+          
+          run_id2 = workflow.run()
+          workflow.get_results(run_id2, verbose=False)
+          
+          # List cached runs
+          cached = workflow.list_cached_runs()
+          print(f"Cached runs: {cached}")
+          # Output: ['run_id1', 'run_id2']
+
+   .. py:method:: clear_cache(run_id=None)
+
+      Clear cached workflow results.
+
+      :param str run_id: Specific run ID to clear. If ``None``, clears all cached results.
+
+      **Example 1 - Clear specific run:**
+
+      .. code-block:: python
+
+          workflow.clear_cache(run_id)
+          print(f"Cleared cache for {run_id}")
+
+      **Example 2 - Clear all cache:**
+
+      .. code-block:: python
+
+          workflow.clear_cache()
+          print("All cache cleared")
 
 MaTask
 ------
@@ -515,11 +798,11 @@ Decorators
 
    - **outputs** (List[str]): Names of output parameters that the task returns. These must match the keys in the returned dictionary.
 
-   - **resources** (Dict[str, Any], optional): Resource requirements for the task:
+   - **resources** (Dict[str, Any], optional): Resource requirements for the task. If not specified or partially specified, missing values are filled with defaults:
 
-     - ``cpu`` (int/float): Number of CPU cores (default: 1)
-     - ``cpu_mem`` (int): CPU memory in MB (default: 128)
-     - ``gpu`` (int/float): Number of GPUs (default: 0)
+     - ``cpu`` (int/float): Number of CPU cores (default: 1, minimum: 1)
+     - ``cpu_mem`` (int): CPU memory in MB (default: 0)
+     - ``gpu`` (int/float): Number of GPUs (default: 0, auto-set to 1 if ``gpu_mem > 0``)
      - ``gpu_mem`` (int): GPU memory in MB (default: 0)
 
    - **data_types** (Dict[str, str], optional): Data types for parameters. Defaults to ``"str"`` for all parameters.
@@ -542,11 +825,14 @@ Decorators
        @task(
            inputs=["text"],
            outputs=["result"],
-           resources={"cpu": 1, "cpu_mem": 128, "gpu": 0, "gpu_mem": 0}
+           resources={"cpu": 1, "cpu_mem": 128}
        )
        def uppercase_text(params):
            text = params.get("text")
            return {"result": text.upper()}
+       
+       # Equivalent to (auto-filled):
+       # resources={"cpu": 1, "cpu_mem": 128, "gpu": 0, "gpu_mem": 0}
 
    **Example 2 - Multiple inputs and outputs:**
 
@@ -604,14 +890,36 @@ Decorators
            
            return {"result": result}
 
-   **Example 5 - Custom data types:**
+   **Example 5 - Auto-filled resources:**
+
+   .. code-block:: python
+
+       # Only specify gpu_mem - gpu auto-set to 1, cpu auto-set to 1
+       @task(
+           inputs=["data"],
+           outputs=["result"],
+           resources={"gpu_mem": 4096}
+       )
+       def auto_gpu_task(params):
+           return {"result": "processed"}
+       
+       # Effective resources: {"cpu": 1, "cpu_mem": 0, "gpu": 1, "gpu_mem": 4096}
+       
+       # No resources specified - uses all defaults
+       @task(inputs=["x"], outputs=["y"])
+       def minimal_task(params):
+           return {"y": params["x"] * 2}
+       
+       # Effective resources: {"cpu": 1, "cpu_mem": 0, "gpu": 0, "gpu_mem": 0}
+
+   **Example 6 - Custom data types:**
 
    .. code-block:: python
 
        @task(
            inputs=["count", "rate"],
            outputs=["total"],
-           resources={"cpu": 1, "cpu_mem": 128, "gpu": 0, "gpu_mem": 0},
+           resources={"cpu": 1, "cpu_mem": 128},
            data_types={"count": "int", "rate": "float", "total": "float"}
        )
        def calculate_total(params):
