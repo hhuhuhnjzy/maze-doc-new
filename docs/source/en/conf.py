@@ -5,8 +5,7 @@
 project = 'Maze'
 copyright = '2025, HUST'
 author = 'HUST'
-release = '0.2'
-version = '0.1.0'
+
 
 # ✅ 关键：设置语言为英文
 language = 'en'
