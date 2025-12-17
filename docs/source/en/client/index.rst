@@ -8,5 +8,4 @@ Maze provides multiple client options to build and orchestrate AI workflows. Cho
 
    maclient
    langgraph_client
-
-
+   llm_instance
