@@ -28,7 +28,6 @@ To start using the Sandbox, you need to create a ``CodeSandboxClient`` instance 
         # Create a code sandbox client instance
         codesandbox = CodeSandboxClient(
             url="http://0.0.0.0:8000", 
-            cpu_nums=1, 
         )
         
         # Run simple code
