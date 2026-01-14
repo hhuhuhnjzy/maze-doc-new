@@ -14,3 +14,4 @@ Maze is a powerful framework for building AI workflows. This documentation will 
    examples
    api/index
    playground
+   sandbox
