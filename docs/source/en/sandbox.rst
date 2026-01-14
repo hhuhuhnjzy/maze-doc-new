@@ -34,6 +34,7 @@ To start using the Sandbox, you need to create a ``CodeSandboxClient`` instance 
         result = await codesandbox.run_code("print('hello world')")
         print("Execution result:", result['stdout'])
 
+        await codesandbox.close()
     if __name__ == "__main__":
         asyncio.run(main())
 
